@@ -2,7 +2,7 @@
 
 ## MIT License
 
-Copyright &copy; 2016
+Copyright &copy; 2017
 
 Built by Ryan Mack
 
