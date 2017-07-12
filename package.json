@@ -1,0 +1,27 @@
+{
+  "name": "vanilla",
+  "version": "1.0.0",
+  "description": "## Getting Started * Clone this repository * Use`npm install` to get all required node modules * Use `gulp` to run default task * Start coding",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "browser-sync": "^2.18.12",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanjmack/frontend-boilerplate.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryanjmack/frontend-boilerplate/issues"
+  },
+  "homepage": "https://github.com/ryanjmack/frontend-boilerplate#readme"
+}
