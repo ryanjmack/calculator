@@ -1,0 +1,1 @@
+{"version":3,"sources":["master.scss"],"names":[],"mappings":"AAAA;EACE,YAAW,EACZ;;AAED;EACE,iBAAgB,EACjB","file":"master.css","sourcesContent":["h1 {\n  color: blue;\n}\n\nh1 {\n  font-size: 100px;\n}\n"]}
