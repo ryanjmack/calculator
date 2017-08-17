@@ -15,6 +15,8 @@ gulp.task('styles', function() {
         .pipe(browserSync.reload({ stream: true }));
 });
 
+gulp.task('default', ['styles', 'serve']);
+
 gulp.task('serve', function() {
     browserSync.init({
         server: {
@@ -23,8 +25,7 @@ gulp.task('serve', function() {
     });
 
     gulp.watch('./src/stylesheets/sass/*.scss', ['styles']);
+    gulp.watch('./src/js/*.js').on('change', browserSync.reload);
     gulp.watch('./src/*.html').on('change', browserSync.reload);
 
 });
-
-gulp.task('default', ['styles', 'serve']);
