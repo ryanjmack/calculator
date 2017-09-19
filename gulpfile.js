@@ -1,14 +1,12 @@
 var autoprefixer = require('gulp-autoprefixer');
 var browserSync = require('browser-sync').create();
 var cache = require('gulp-cache');
-var cssimport = require("gulp-cssimport");
 var cssnano = require('gulp-cssnano');
 var del = require('del');
 var gulp = require('gulp');
 var gulpIf = require('gulp-if');
 var htmlmin = require('gulp-htmlmin');
 var imagemin = require('gulp-imagemin');
-var replace = require('gulp-replace');
 var runSequence = require('run-sequence');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
@@ -73,7 +71,6 @@ gulp.task('sass', function() {
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer())
         .pipe(sourcemaps.write('./'))
-        .pipe(cssimport())
         .pipe(gulp.dest('./src/stylesheets/css'))
         .pipe(browserSync.reload({
             stream: true
@@ -90,7 +87,7 @@ gulp.task('useref', function() {
     // Minifies only if it's a CSS file, also fix url paths for background images
     .pipe(gulpIf('*.css', cssnano({
             discardComments: {removeAll: true}
-        })).pipe(replace('../../images', '../images')))
+        })))
 
     .pipe(gulp.dest('build'))
 });
