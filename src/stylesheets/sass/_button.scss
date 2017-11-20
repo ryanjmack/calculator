@@ -1,0 +1,53 @@
+/***********************************************************************
+This file contains the styles for the buttons
+***********************************************************************/
+
+button {
+  align-items: center;
+  background-color: $button;
+  border: none;
+  border-right: 1px solid $border;
+  color: $button-text;
+  display: flex;
+  flex: 1 1 25%;
+  justify-content: center;
+  padding: 0;
+
+
+  &:last-of-type {
+    border-right: none;
+  }
+
+  &:hover {
+    background-color: darken($button, 7%);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  // the equals button is a different color than the others
+  &[data-value="equals"] {
+    background-color: $blue;
+    color: $button-text;
+
+    &:hover {
+      background-color: darken($blue, 5%);
+    }
+  }
+
+  // the '0' button will span two columns
+  &[data-value="0"] {
+    flex: 1 1 50%;
+  }
+}
+
+// these are the dark buttons used for operations
+.invert {
+  background-color: $inverted-background;
+  color: $button-text;
+
+  &:hover {
+    background-color: darken($inverted-background, 5%);
+  }
+}
