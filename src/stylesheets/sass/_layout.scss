@@ -5,7 +5,7 @@ and height etc.
 
 body {
   align-items: center;
-  background-color: #111;
+  background-color: #eee; //linear-gradient(45deg, rgba(139, 62, 154, .2), rgba(62, 254, 216, .1));
   display: flex;
   font-size: 1rem;
   height: 100%;
@@ -14,14 +14,21 @@ body {
 }
 
 main {
-  background-color: $button-text;
+  background-color: #f5f5f5;
   color: $button-text;
   display: flex;
   flex-direction: column;
+  font-size: 1rem;
   height: 100%;
-  max-height: 30em;
-  max-width: 100%;
-  width: 25em;
+  width: 100%;
+
+  @media (min-width: 510px) {
+    border: 3px solid $border;
+    border-radius: 4px;
+    max-height: 40em;
+    max-width: 100%;
+    width: 30em;
+  }
 }
 
 .input-field {
@@ -32,6 +39,7 @@ main {
   border-bottom: 1px solid $border;
   display: flex;
   flex: 1 1 15%;
+  font-size: 1.8em;
   margin: 0;
   width: 100%;
 
