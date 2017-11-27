@@ -1,61 +1,26 @@
+/***********************************************************************
+** Name: Ryan Mack
+** Date: 11/27/2017
+** Description: File that contains the code for a simple web based
+** calculator
+***********************************************************************/
+
+// holds data and functions for the calculator
 const calculator = {
   // data members
-  total: null,
+  total: null, // running total
   firstNum: true,
-  currentInput: '',
-  stringOutput: '',
-  currentOperation: null,
+  nextNumNegative: false,
+  currentInput: '', // data that is being inputted from the user
+  stringOutput: '', // the output the user sees on the screen
+  currentOperation: null, // will hold a closure
 
-/***********************************************************************
-** calculator methods
-***********************************************************************/
-  add: function(x) {
-    this.total += x;
-  },
-
-  resetCurrentInput: function() {
-    this.currentInput = '';
-  },
-
-  updateCurrentInput: function(val) {
-    this.currentInput += val;
-    this.updateStringOutput(val);
-  },
-
-
-  updateStringOutput: function(val) {
-    this.stringOutput += val;
-    updateView(this.stringOutput);
-  },
-
-  // simple operators: +, -, *, /, %
-  handleOperator: function(value, operator) {
-    if (this.firstNum) {
-      this.firstNum = false;
-      this.total = parseFloat(this.currentInput);
-      this.currentInput = '';
-    }
-    else if (this.currentInput === '') {
-      return;
-    }
-    else {
-      this.currentOperation(parseFloat(this.currentInput));
-      this.resetCurrentInput();
-    }
-    console.log(this.total);
-    this.updateStringOutput(` ${operator} `);
-    this.currentOperation = this[value];
-  },
-
-  // special operators: AC, =, (-)
-  handleSpecialOperators: function(value, operator) {
-    if (value === "equals") {
-      this.currentOperation(parseFloat(this.currentInput));
-      updateView(this.total);
+  add: function() {
+    return function(num) {
+      return this.total + num;
     }
   }
-}
-
+} // end calculator object
 
 
 /***********************************************************************
@@ -66,12 +31,13 @@ function handleClick(e) {
   const buttonValue = e.target.dataset.value;
   const buttonOperator = e.target.dataset.operator;
 
-  if (!buttonValue) { // all buttons have a buttonValue
-    console.error("Element does not have dataset-value attribute");
+  if (!buttonValue) { // all buttons have a buttonValue (add, 1, 2 etc.)
+    console.log("not a button!!");
     return;
   }
   else if (!buttonOperator) { // If it's not an operator, it's a number
-    calculator.updateCurrentInput(Number(buttonValue));
+    calculator.currentInput += buttonValue;
+    calculator.stringOutput += buttonValue;
   }
   else { // we are dealing with an operator of some sort
     switch (buttonValue) {
@@ -79,23 +45,86 @@ function handleClick(e) {
       case 'AC':
       case 'negative':
       case 'equals':
-        calculator.handleSpecialOperators(buttonValue, buttonOperator);
+      case 'decimal':
+        handleSpecialOperators(buttonValue, buttonOperator);
         break;
-      default:
-        calculator.handleOperator(buttonValue, buttonOperator);
+      default: // simple operators
+        handleOperator(buttonValue, buttonOperator);
     }
+  }
+  console.log(calculator);
+  updateView();
+}
+
+function handleOperator(value, operator) {
+  // first number using is inputting
+  if (calculator.firstNum) {
+    calculator.firstNum = false;
+    calculator.total = parseFloat(calculator.currentInput);
+  }
+  else { // not the first number user is inputting
+    calculator.total = calculator.currentOperation(parseFloat(calculator.currentInput));
+  }
+
+    calculator.currentOperation = calculator[value]();
+
+
+  calculator.currentInput = '';
+  calculator.stringOutput += ` ${operator} `
+}
+
+function handleSpecialOperators(value, operator) {
+  if (value === "negative") {
+    calculator.nextNumNegative = !calculator.nextNumNegative;
+
+    if (calculator.nextNumNegative === false) {
+      calculator.currentInput = calculator.currentInput.replace(/^\-/, '');
+      calculator.stringOutput = calculator.stringOutput.replace(/\-(\d*.?\d*)$/, '$1');
+    }
+    else {
+      calculator.currentInput = `-${calculator.currentInput}`;
+      calculator.stringOutput = calculator.stringOutput.replace(/\s(\d*\.?\d*)$/, ` -$1`);
+    }
+  }
+  else if (value === "decimal") {
+    if (calculator.currentInput.includes('.'))
+      return;
+
+    // format the decimal
+    const decimal = (calculator.currentInput) ? '.' : '0.';
+    calculator.currentInput += decimal;
+    calculator.stringOutput += decimal;
+  }
+  else {
+    if (value === "equals") {
+      // find out how much precision we want to dislay - avoids floating point problems
+      const precision = (() => {
+        return Math.max(calculator.currentInput.match(/(?!\d)\.$/)||''.length,
+                 String(calculator.total).match(/(?!\d)\.$/)||''.length);
+      })();
+
+      calculator.total = calculator.currentOperation(parseFloat(calculator.currentInput)).toFixed(precision);
+      calculator.currentInput = `${calculator.total}`;
+      calculator.stringOutput = `${calculator.total}`;
+    }
+    else { // "AC" button
+      calculator.total=  null;
+      calculator.currentInput= '';
+      calculator.stringOutput = '';
+    }
+    calculator.nextNumNegative = false;
+    calculator.firstNum = true;
+    calculator.currentOperation = null;
+
   }
 }
 
-
-/***********************************************************************
-** Updates the view of the calculator every time a button is pressd
-***********************************************************************/
-function updateView(str) {
-  document.querySelector('.output-field p').innerText = str;
+function updateView() {
+  document.querySelector('.output-field p').innerText = calculator.stringOutput;
 }
 
 /***********************************************************************
-** Event listener for the calculator object
+** Event listener for the calculator object. Event delegation is used
+** so we don't need 19 event listeners for all the buttons
 ***********************************************************************/
 document.querySelector('main').addEventListener('click', handleClick);
