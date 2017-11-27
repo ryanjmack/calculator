@@ -10,39 +10,42 @@
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 	<link rel="stylesheet" href="/stylesheets/css/normalize.css">
 	<link rel="stylesheet" href="/stylesheets/css/master.css">
+	<script type="text/javascript" src="js/general.js" defer></script>
 </head>
 
 <body>
 	<main>
-		<div class="input-field"></div>
+		<div class="output-field">
+			<p></p>
+		</div>
 			<div class="row">
-				<button data-value="AC" class="invert">AC</button>
-				<button data-value="negative" class="invert">(-)</button>
-				<button data-value="percent" class="invert">%</button>
-				<button data-value="divide" class="invert">/</button>
+				<button data-value="AC" data-operator="AC" class="invert">AC</button>
+				<button data-value="negative" data-operator="-" class="invert">(-)</button>
+				<button data-value="percentage" data-operator="%" class="invert">%</button>
+				<button data-value="divide" class="/">/</button>
 			</div>
 			<div class="row">
 				<button data-value="7">7</button>
 				<button data-value="8">8</button>
 				<button data-value="9">9</button>
-				<button data-value="multiply" class="invert">*</button>
+				<button data-value="multiply" data-operator="*"class="invert">*</button>
 			</div>
 			<div class="row">
 				<button data-value="4">4</button>
 				<button data-value="5">5</button>
 				<button data-value="6">6</button>
-				<button data-value="subtract" class="invert">-</button>
+				<button data-value="subtract" data-operator="-" class="invert">-</button>
 			</div>
 			<div class="row">
 				<button data-value="1">1</button>
 				<button data-value="2">2</button>
 				<button data-value="3">3</button>
-				<button data-value="add" class="invert">+</button>
+				<button data-value="add" data-operator="+" class="invert">+</button>
 			</div>
 			<div class="row">
 				<button data-value="0">0</button>
-				<button data-value=".">.</button>
-				<button data-value="equals">=</button>
+				<button data-value="decimal" data-operator=".">.</button>
+				<button data-value="equals" data-operator="=">=</button>
 			</div>
 	</main>
 </body>
