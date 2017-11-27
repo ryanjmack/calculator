@@ -31,9 +31,25 @@ main {
   }
 }
 
-.input-field {
-  flex: 1 1 25%;
+.output-field {
+  align-items: center;
   background-color: #f5f5f5;
+  display: flex;
+  flex: 1 1 25%;
+  text-align: right;
+
+  p {
+    color: $border;
+    float: right;
+    font: {
+      size: 3.5em;
+      weight: bolder;
+    }
+    margin: 0;
+    overflow-x: hidden;
+    padding: 0 0.5em;
+    width: 100%;
+  }
 }
 
 .row {
