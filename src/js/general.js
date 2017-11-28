@@ -64,14 +64,13 @@ const calc = {
   },
 
   equals: function() {
-    console.log('equals this value is: ', this);
     if (!this.currentOperation)
       return;
     // find out how much precision we want to dislay - avoids floating point problems
-    const precision = (() => {
-      return Math.max(calc.currentInput.match(/(?!\d)\.$/)||''.length,
-               String(calc.total).match(/(?!\d)\.$/)||''.length);
-    })();
+    const precision =  Math.max(
+               (calc.currentInput.match(/(?!\.)\d+$/)[0]||'').length,
+               (String(calc.total).match(/(?!\.)\d+$/)[0]||'').length);
+    console.log(precision);
 
     this.total = parseFloat(this.currentOperation(parseFloat(this.currentInput)).toFixed(precision));
     this.currentInput = `${this.total}`;
