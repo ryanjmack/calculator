@@ -35,6 +35,10 @@ const calc = {
 
   divide: function() {
     return function(num) {
+      if (num === 0) {
+        console.error("Attempted Division by 0");
+        return 0;
+      }
       return this.total / num;
     }
   },
@@ -64,19 +68,22 @@ const calc = {
   },
 
   equals: function() {
+    // nothing to compute
     if (!this.currentOperation)
       return;
-    // find out how much precision we want to dislay - avoids floating point problems
+
+    // get semi-accurate precision. We want to avoid floating point issues but
+    // display the same amount of decimals the user inputted
     const precision =  Math.max(
                (calc.currentInput.match(/(?!\.)\d+$/)[0]||'').length,
                (String(calc.total).match(/(?!\.)\d+$/)[0]||'').length);
-    console.log(precision);
 
+    // now we can run the operation on the numbers and save the data
     this.total = parseFloat(this.currentOperation(parseFloat(this.currentInput)).toFixed(precision));
     this.currentInput = `${this.total}`;
     this.stringOutput = `${this.total}`;
 
-    // soft reset
+    // calculcator soft reset
     this.reset(false);
   }
 
