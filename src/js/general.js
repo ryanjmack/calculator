@@ -5,16 +5,22 @@
  ** calc
  ***********************************************************************/
 
-// holds data and functions for the calculator object
+// holds data and functions for the calculator object. This is the model
 const calc = {
   // data members
-  total: null, // running total
-  firstNum: true,
-  nextNumNegative: false,
   currentInput: '', // data that is being inputted from the user
-  stringOutput: '', // the output the user sees on the screen
   currentOperation: null, // will hold a closure
+  firstNum: true, // first number in input?
+  nextNumNegative: false,
+  output: '', // the output the user sees on the screen
+  total: null, // running total
 
+  /*********************************************************************
+  ** Mathematical functions. They return a closure, which is saved to
+  ** the data member currentOperation. When any operator button is
+  ** pressed we can run the currentOperation then save the new closure,
+  ** retaining access to the value of total at that point in time
+  *********************************************************************/
   add: function() {
     return function(num) {
       return this.total + num;
@@ -43,30 +49,36 @@ const calc = {
     }
   },
 
+  // TODO
   /* percentage: function() {
     return function(num) {
       return this.total + num;
     }
   },*/
+
+  // reset the calculator. Takes a boolean param to determine
+  // whether we want a hard (true) or soft (false) reset.
   reset: function(hardReset) {
     // hard reset is used when "AC" is pressed
     if (hardReset) {
       calc.total = null;
       calc.currentInput = '';
-      calc.stringOutput = '';
+      calc.output = '';
     }
 
-    // soft reset, used when user presses 'equal'
+    // soft reset, used when user presses 'equal'. Also run during hard reset
     calc.nextNumNegative = false;
     calc.firstNum = true;
     calc.currentOperation = null;
   },
 
+  // clears or resets the entire calculator
   allClear: function() {
     // hard reset
     calc.reset(true);
   },
 
+  // computes the input, if there is anything to compute
   equals: function() {
     // nothing to compute
     if (!this.currentOperation)
@@ -75,18 +87,20 @@ const calc = {
     // get semi-accurate precision. We want to avoid floating point issues but
     // display the same amount of decimals the user inputted
     const precision = Math.max(
+      // regex is not very readable. Basically gets a 'good-enough' level of precision
       (calc.currentInput.match(/(?!\.)\d+$/)[0] || '').length,
       (String(calc.total).match(/(?!\.)\d+$/)[0] || '').length);
 
     // now we can run the operation on the numbers and save the data
     this.total = parseFloat(this.currentOperation(parseFloat(this.currentInput)).toFixed(precision));
     this.currentInput = `${this.total}`;
-    this.stringOutput = `${this.total}`;
+    this.output = `${this.total}`;
 
-    // calculcator soft reset
+    // calculator soft reset
     this.reset(false);
   },
 
+  // adds a decimal; doesn't do anything if there already if the user already entered a decimal
   decimal: function() {
     if (this.currentInput.includes('.'))
       return;
@@ -94,9 +108,10 @@ const calc = {
     // format the decimal
     const decimal = (this.currentInput && this.currentInput !== "-") ? '.' : '0.';
     this.currentInput += decimal;
-    this.stringOutput += decimal;
+    this.output += decimal;
   },
 
+  // toggles the parity of the current input.
   negative: function() {
     // the number being inputted can have its negative sign toggled
     this.nextNumNegative = !this.nextNumNegative;
@@ -106,54 +121,56 @@ const calc = {
     if (this.total !== null && this.firstNum) {
       this.total *= -1;
       this.currentInput = `${this.total}`;
-      this.stringOutput = `${this.total}`;
+      this.output = `${this.total}`;
     }
     // negative being toggle off
     // remove the negative sign from the input and output
     else if (this.nextNumNegative === false) {
       this.currentInput = this.currentInput.replace(/^\-/, '');
-      this.stringOutput = this.stringOutput.replace(/\-(\d+\.?\d*)?$/, '$1');
+      this.output = this.output.replace(/\-(\d+\.?\d*)?$/, '$1');
     }
     // negative being toggled on with multiple numbers in the
     else {
       const regex = new RegExp(`(${this.currentInput})$`);
-      this.stringOutput = calc.stringOutput.replace(regex, `-$1`);
+      this.output = calc.output.replace(regex, `-$1`);
       this.currentInput = `-${this.currentInput}`;
     }
   },
 
+  // concatenates the int to the currentInput and output
   inputNumber: function(int) {
-    if (this.firstNum && this.nextNumNegative) {
-      this.currentInput += `-${int}`;
-      this.stringOutput += `-${int}`;
-    } else {
       this.currentInput += int;
-      this.stringOutput += int;
-    }
+      this.output += int;
   },
 
+  // takes in the value and operator associated with the click event
+  // value is the name (add)
+  // operator is the shorthand (+)
   handleOperator: function(value, operator) {
-    if (!this.currentInput)
+    if (!this.currentInput) // can't operate on nothing
       return;
 
     // first number using is inputting
     if (this.firstNum) {
       this.firstNum = false;
-      this.total = this.total || parseFloat(this.currentInput);
-    } else { // not the first number user is inputting
+      this.total = (this.total !== null) ? this.total : parseFloat(this.currentInput);
+    }
+    else { // perform computation
       this.total = this.currentOperation(parseFloat(this.currentInput));
     }
 
-    this.currentOperation = this[value]();
+    // this[value] -- value is the html data-value attribute. It has the
+    // same value as the method on the calc object.
+    this.currentOperation = this[value](); // returns a closure, ready for next operation
     this.currentInput = '';
-    this.stringOutput += ` ${operator} `
+    this.output += ` ${operator} `
   }
 
 } // end calc object
 
 
 /***********************************************************************
- ** Runs when the user clicks any buttons
+ ** Runs when the user clicks any buttons. This is the controller
  ***********************************************************************/
 function handleClick(e) {
   // get the dataset information
@@ -187,7 +204,7 @@ function handleClick(e) {
         case 'decimal':
           calc.decimal();
           break;
-        default: // simple operators
+        default: // all other operators
           calc.handleOperator(buttonValue, buttonOperator);
       }
     }
@@ -196,12 +213,17 @@ function handleClick(e) {
   updateView();
 }
 
+
+/***********************************************************************
+** this is the view. Gets called every time the controller is triggered
+** (valid button is clicked)
+***********************************************************************/
 function updateView() {
-  document.querySelector('.output-field p').innerText = calc.stringOutput;
+  document.querySelector('.output-field p').innerText = calc.output;
 }
+
 
 /***********************************************************************
  ** Event listener for the calc object. Event delegation is used
- ** so we don't need 19 event listeners for all the buttons
  ***********************************************************************/
 document.querySelector('main').addEventListener('click', handleClick);
