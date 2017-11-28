@@ -1,9 +1,9 @@
 /***********************************************************************
-** Name: Ryan Mack
-** Date: 11/27/2017
-** Description: File that contains the code for a simple web based
-** calc
-***********************************************************************/
+ ** Name: Ryan Mack
+ ** Date: 11/27/2017
+ ** Description: File that contains the code for a simple web based
+ ** calc
+ ***********************************************************************/
 
 // holds data and functions for the calculator object
 const calc = {
@@ -51,8 +51,8 @@ const calc = {
   reset: function(hardReset) {
     // hard reset is used when "AC" is pressed
     if (hardReset) {
-      calc.total=  null;
-      calc.currentInput= '';
+      calc.total = null;
+      calc.currentInput = '';
       calc.stringOutput = '';
     }
 
@@ -74,9 +74,9 @@ const calc = {
 
     // get semi-accurate precision. We want to avoid floating point issues but
     // display the same amount of decimals the user inputted
-    const precision =  Math.max(
-               (calc.currentInput.match(/(?!\.)\d+$/)[0]||'').length,
-               (String(calc.total).match(/(?!\.)\d+$/)[0]||'').length);
+    const precision = Math.max(
+      (calc.currentInput.match(/(?!\.)\d+$/)[0] || '').length,
+      (String(calc.total).match(/(?!\.)\d+$/)[0] || '').length);
 
     // now we can run the operation on the numbers and save the data
     this.total = parseFloat(this.currentOperation(parseFloat(this.currentInput)).toFixed(precision));
@@ -85,14 +85,76 @@ const calc = {
 
     // calculcator soft reset
     this.reset(false);
+  },
+
+  decimal: function() {
+    if (this.currentInput.includes('.'))
+      return;
+
+    // format the decimal
+    const decimal = (this.currentInput && this.currentInput !== "-") ? '.' : '0.';
+    this.currentInput += decimal;
+    this.stringOutput += decimal;
+  },
+
+  negative: function() {
+    // the number being inputted can have its negative sign toggled
+    this.nextNumNegative = !this.nextNumNegative;
+
+    // equals button was hit.
+    // There is a running total, and it's a standalone number with no operation
+    if (this.total !== null && this.firstNum) {
+      this.total *= -1;
+      this.currentInput = `${this.total}`;
+      this.stringOutput = `${this.total}`;
+    }
+    // negative being toggle off
+    // remove the negative sign from the input and output
+    else if (this.nextNumNegative === false) {
+      this.currentInput = this.currentInput.replace(/^\-/, '');
+      this.stringOutput = this.stringOutput.replace(/\-(\d+\.?\d*)?$/, '$1');
+    }
+    // negative being toggled on with multiple numbers in the
+    else {
+      const regex = new RegExp(`(${this.currentInput})$`);
+      this.stringOutput = calc.stringOutput.replace(regex, `-$1`);
+      this.currentInput = `-${this.currentInput}`;
+    }
+  },
+
+  inputNumber: function(int) {
+    if (this.firstNum && this.nextNumNegative) {
+      this.currentInput += `-${int}`;
+      this.stringOutput += `-${int}`;
+    } else {
+      this.currentInput += int;
+      this.stringOutput += int;
+    }
+  },
+
+  handleOperator: function(value, operator) {
+    if (!this.currentInput)
+      return;
+
+    // first number using is inputting
+    if (this.firstNum) {
+      this.firstNum = false;
+      this.total = this.total || parseFloat(this.currentInput);
+    } else { // not the first number user is inputting
+      this.total = this.currentOperation(parseFloat(this.currentInput));
+    }
+
+    this.currentOperation = this[value]();
+    this.currentInput = '';
+    this.stringOutput += ` ${operator} `
   }
 
 } // end calc object
 
 
 /***********************************************************************
-** Runs when the user clicks any buttons
-***********************************************************************/
+ ** Runs when the user clicks any buttons
+ ***********************************************************************/
 function handleClick(e) {
   // get the dataset information
   e.preventDefault();
@@ -100,84 +162,38 @@ function handleClick(e) {
   const buttonOperator = e.target.dataset.operator;
 
   if (!buttonValue) { // all buttons have a buttonValue (add, 1, 2 etc.)
-    console.log("not a button!!");
     return;
   }
   else if (!buttonOperator) { // If it's not an operator, it's a number
-    if (calc.firstNum && calc.nextNumNegative) {
-      calc.currentInput += `-${buttonValue}`;
-      calc.stringOutput += `-${buttonValue}`;
-    }
-    else {
-      calc.currentInput += buttonValue;
-      calc.stringOutput += buttonValue;
-    }
+    calc.inputNumber(buttonValue);
   }
   else { // we are dealing with an operator of some sort
-    switch (buttonValue) {
-      // these are special operators
-      case 'AC':
-        calc.allClear();
-        break;
-      case 'equals':
-        calc.equals();
-        break;
-      case 'negative':
-      case 'decimal':
-        handleSpecialOperators(buttonValue, buttonOperator);
-        break;
-      default: // simple operators
-        handleOperator(buttonValue, buttonOperator);
+    // this is a special case; see the else statment below
+    if (buttonValue === 'negative') {
+      calc.negative();
+    }
+    else {
+      // need to make sure this flag is off for ALL operators
+      // all operators compute something whereas negative modifies an inputted number
+      calc.nextNumNegative = false;
+
+      switch (buttonValue) {
+        case 'AC':
+          calc.allClear();
+          break;
+        case 'equals':
+          calc.equals();
+          break;
+        case 'decimal':
+          calc.decimal();
+          break;
+        default: // simple operators
+          calc.handleOperator(buttonValue, buttonOperator);
+      }
     }
   }
   console.log(calc);
   updateView();
-}
-
-function handleOperator(value, operator) {
-  if (!calc.currentInput)
-    return;
-
-  // first number using is inputting
-  if (calc.firstNum) {
-    calc.firstNum = false;
-    calc.total = calc.total || parseFloat(calc.currentInput);
-  }
-  else { // not the first number user is inputting
-    calc.total = calc.currentOperation(parseFloat(calc.currentInput));
-  }
-
-  calc.currentOperation = calc[value]();
-  calc.currentInput = '';
-  calc.stringOutput += ` ${operator} `
-}
-
-function handleSpecialOperators(value, operator) {
-  if (value === "negative") {
-    calc.nextNumNegative = !calc.nextNumNegative;
-
-    if (calc.nextNumNegative === false) {
-      calc.currentInput = calc.currentInput.replace(/^\-/, '');
-      calc.stringOutput = calc.stringOutput.replace(/\-(\d+(.?\d)*)$/, '$1');
-    }
-    else if (calc.total && calc.firstNum) {
-      calc.total *= -1;
-      calc.stringOutput = calc.stringOutput.replace(/\-(\d+(.?\d)*)$/, '$1');
-    }
-    else {
-      calc.currentInput = `-${calc.currentInput}`;
-      calc.stringOutput = calc.stringOutput.replace(/\s?(\d*\.?\d*)?$/, ` -$1`);
-    }
-  }
-  else if (value === "decimal") {
-    if (calc.currentInput.includes('.'))
-      return;
-
-    // format the decimal
-    const decimal = (calc.currentInput && calc.currentInput !== "-") ? '.' : '0.';
-    calc.currentInput += decimal;
-    calc.stringOutput += decimal;
-  }
 }
 
 function updateView() {
@@ -185,7 +201,7 @@ function updateView() {
 }
 
 /***********************************************************************
-** Event listener for the calc object. Event delegation is used
-** so we don't need 19 event listeners for all the buttons
-***********************************************************************/
+ ** Event listener for the calc object. Event delegation is used
+ ** so we don't need 19 event listeners for all the buttons
+ ***********************************************************************/
 document.querySelector('main').addEventListener('click', handleClick);
