@@ -8,12 +8,12 @@
 // holds data and functions for the calculator object. This is the model
 const calc = {
   // data members
+  total: null, // running total
   currentInput: '', // data that is being inputted from the user
   currentOperation: null, // will hold a closure
   firstNum: true, // first number in input?
   nextNumNegative: false,
   output: '', // the output the user sees on the screen
-  total: null, // running total
 
   /*********************************************************************
   ** Mathematical functions. They return a closure, which is saved to
@@ -49,24 +49,43 @@ const calc = {
     }
   },
 
-  // TODO
-  /* percentage: function() {
-    return function(num) {
-      return this.total + num;
+  // Takes the percentage of the the running total
+  // Example: 600 + 20% returns 720
+  percentage: function() {
+    // we don't have a total; percentage of current input
+    if (this.total === null) {
+      if (!this.currentInput) {
+        return;
+      }
+      else if (!this.currentOperation) {
+        this.output += '%';
+        this.total = parseFloat(this.currentInput) / 100;
+      }
+      else {
+        return;
+      }
     }
-  },*/
+    // we have to compute the percentage of the total
+    else {
+      this.output += '%';
+      this.currentInput = Number(this.currentInput) / 100 * this.total;
+      this.total = this.currentOperation(Number(this.currentInput));
+      this.currentInput = `${this.total}`;
+      this.currentOperation = null;
+    }
+  },
 
   // reset the calculator. Takes a boolean param to determine
   // whether we want a hard (true) or soft (false) reset.
   reset: function(hardReset) {
     // hard reset is used when "AC" is pressed
     if (hardReset) {
-      calc.total = null;
       calc.currentInput = '';
       calc.output = '';
     }
 
     // soft reset, used when user presses 'equal'. Also run during hard reset
+    this.total = null;
     calc.nextNumNegative = false;
     calc.firstNum = true;
     calc.currentOperation = null;
@@ -80,21 +99,27 @@ const calc = {
 
   // computes the input, if there is anything to compute
   equals: function() {
-    // nothing to compute
-    if (!this.currentOperation)
+
+    if (/%$/.test(this.output)) {
+      this.currentInput = `${this.total}`;
+      this.output = `${this.total}`;
+    }
+    else if (!this.currentOperation) { // nothing to compute
       return;
+    }
+    else {
+      // get semi-accurate precision. We want to avoid floating point issues but
+      // display the same amount of decimals the user inputted
+      const precision = Math.max(
+        // regex is not very readable. Basically gets a 'good-enough' level of precision
+        (calc.currentInput.match(/(?!\.)\d+$/)[0] || '').length,
+        (String(calc.total).match(/(?!\.)\d+$/)[0] || '').length);
 
-    // get semi-accurate precision. We want to avoid floating point issues but
-    // display the same amount of decimals the user inputted
-    const precision = Math.max(
-      // regex is not very readable. Basically gets a 'good-enough' level of precision
-      (calc.currentInput.match(/(?!\.)\d+$/)[0] || '').length,
-      (String(calc.total).match(/(?!\.)\d+$/)[0] || '').length);
-
-    // now we can run the operation on the numbers and save the data
-    this.total = parseFloat(this.currentOperation(parseFloat(this.currentInput)).toFixed(precision));
-    this.currentInput = `${this.total}`;
-    this.output = `${this.total}`;
+      // now we can run the operation on the numbers and save the data
+      this.total = parseFloat(this.currentOperation(parseFloat(this.currentInput)).toFixed(precision));
+      this.currentInput = `${this.total}`;
+      this.output = `${this.total}`;
+    }
 
     // calculator soft reset
     this.reset(false);
@@ -155,6 +180,10 @@ const calc = {
       this.firstNum = false;
       this.total = (this.total !== null) ? this.total : parseFloat(this.currentInput);
     }
+    // edge case for the percentage button. The % button works backwards not forwards
+    else if (!this.currentOperation) {
+      this.currentOperation = this[value]();
+    }
     else { // perform computation
       this.total = this.currentOperation(parseFloat(this.currentInput));
     }
@@ -203,6 +232,9 @@ function handleClick(e) {
           break;
         case 'decimal':
           calc.decimal();
+          break;
+        case 'percentage':
+          calc.percentage();
           break;
         default: // all other operators
           calc.handleOperator(buttonValue, buttonOperator);
