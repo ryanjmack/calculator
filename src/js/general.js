@@ -70,9 +70,29 @@ const calc = {
     else if (this.currentInput.includes('(-)')) {
       this.currentInput = this.currentInput.slice(3);
     }
-    else {
+    else { // add a negative sign
       this.currentInput = `(-)${this.currentInput}`;
     }
+  },
+
+  decimal: function() {
+    // disallow user to input multiple decimal numbers
+    if (this.currentInput.includes('.')) {
+      return;
+    }
+    // currentInput is an operator
+    else if (/^[\-+*/]$/.test(this.currentInput)) {
+      this.data.push(this.currentInput);
+      this.currentInput = '0.';
+    }
+    // we are dealing with a number input. The first one or an existing number
+    else {
+      this.currentInput += this.firstInput ? '0.' : '.';
+    }
+  },
+
+  compute: function() {
+    console.log('computing...');
   }
 }  // end calc obj
 
@@ -101,9 +121,11 @@ function handleClick(e) {
       case '(-)':
         calc.negative();
         break;
-      case '=':
       case '.':
-        console.log('special operator');
+        calc.decimal();
+        break;
+      case '=':
+        calc.compute();
         break;
       default: // +, -, *, /
         calc.inputOperator(buttonValue);
