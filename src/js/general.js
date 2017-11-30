@@ -40,6 +40,23 @@ const calc = {
       this.data.push(this.currentInput);
       this.currentInput = op;
     }
+  },
+
+  CE: function() {
+    // overwrite currentInput with the last piece of data user entered
+    if (this.data.length > 0) {
+      this.currentInput = this.data.pop();
+    }
+    // user cleared the firstInput
+    else {
+      this.currentInput = '';
+    }
+  },
+
+  AC: function() {
+    this.data = [];
+    this.currentInput = '';
+    this.firstInput = true;
   }
 }  // end calc obj
 
@@ -60,7 +77,11 @@ function handleClick(e) {
   else { // dataset-value attribute of event is an operator of some sort
     switch(buttonValue) {
       case 'AC':
+        calc.AC();
+        break;
       case 'CE':
+        calc.CE();
+        break;
       case 'neg':
       case '=':
       case '.':
