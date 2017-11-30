@@ -34,6 +34,7 @@ main {
 .output-field {
   align-items: center;
   background-color: #f5f5f5;
+  border-bottom: 3px solid $border;
   display: flex;
   flex: 1 1 25%;
   text-align: right;

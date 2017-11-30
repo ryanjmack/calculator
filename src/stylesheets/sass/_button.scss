@@ -26,16 +26,6 @@ button {
     outline: none;
   }
 
-  // the equals button is a different color than the others
-  &[data-value="equals"] {
-    background-color: $blue;
-    color: $button-text;
-
-    &:hover {
-      background-color: darken($blue, 5%);
-    }
-  }
-
   // the '0' button will span two columns
   &[data-value="0"] {
     flex: 1 1 50%;
@@ -43,11 +33,22 @@ button {
 }
 
 // these are the dark buttons used for operations
-.invert {
-  background-color: $inverted-background;
+.operator {
+  background-color: $operator-background;
   color: $button-text;
 
   &:hover {
-    background-color: darken($inverted-background, 5%);
+    background-color: darken($operator-background, 5%);
+  }
+
+
+  // the equals button is a different color than the others
+  &--blue {
+    background-color: $blue;
+    color: $button-text;
+
+    &:hover {
+      background-color: darken($blue, 5%);
+    }
   }
 }
