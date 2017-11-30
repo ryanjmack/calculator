@@ -9,17 +9,36 @@
 const calc = {
   data: [],
   currentInput: '',
+  firstInput: true,
 
   inputNum: function(num) {
-    // if the current input is a number, OR
-    // this is the first entry --- concatenate a digit
-    if (/\d/.test(this.currentInput)
-        || (!this.currentInput && this.data.length === 0)) {
+    // this is the first entry
+    if (this.firstInput) {
+      this.currentInput += num;
+      this.firstInput = false;
+    }
+    // if the current input is a number
+    else if (/\d/.test(this.currentInput)) {
       this.currentInput += num;
     }
+    // currentInput is an operator. Push it to the array, start inputting new num
     else {
       this.data.push(this.currentInput);
       this.currentInput = num;
+    }
+  },
+
+  inputOperator: function(op) {
+    if (this.firstInput) {
+      return;
+    }
+    // currentInput is an operator, swap them
+    else if (/[\-+*/]/.test(this.currentInput)) {
+      this.currentInput = op;
+    }
+    else {
+      this.data.push(this.currentInput);
+      this.currentInput = op;
     }
   }
 }  // end calc obj
@@ -48,7 +67,7 @@ function handleClick(e) {
         console.log('special operator');
         break;
       default: // +, -, *, /
-        console.log('operator');
+        calc.inputOperator(buttonValue);
     }
   }
 
@@ -60,7 +79,7 @@ function handleClick(e) {
 ** (valid button is clicked)
 ***********************************************************************/
 function updateView() {
-  document.querySelector('.output-field p').innerText = calc.data.join(' ') + calc.currentInput;
+  document.querySelector('.output-field p').innerText = `${calc.data.join(' ')} ${calc.currentInput}`;
 }
 
 
