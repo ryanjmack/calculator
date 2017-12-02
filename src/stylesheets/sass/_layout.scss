@@ -25,7 +25,8 @@ main {
   @media (min-width: 510px) {
     border: 3px solid $border;
     border-radius: 4px;
-    max-height: 40em;
+    height: 40em;
+    max-height: 100%;
     max-width: 100%;
     width: 30em;
   }
@@ -37,19 +38,22 @@ main {
   border-bottom: 3px solid $border;
   display: flex;
   flex: 1 1 25%;
+  justify-content: flex-end;
   text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+
+  .output-wrapper {
+    float: right;
+  }
 
   p {
     color: $border;
-    float: right;
     font: {
-      size: 3.5em;
-      weight: bolder;
+      size: 3em;
     }
     margin: 0;
-    overflow-x: hidden;
-    padding: 0 0.5em;
-    width: 100%;
+    padding: 0 0.2em;
   }
 }
 
