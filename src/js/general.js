@@ -12,7 +12,7 @@ const calc = {
   isFirstInput: true, // certain restrictions on isFirstInput.
 
   // Allows the user to input a digit
-  inputDigit: function(num) {
+  inputDigit: function(digit) {
     // this is the first entry
     if (this.isFirstInput) {
       this.currentInput += digit;
@@ -234,9 +234,9 @@ function updateView() {
 
   // if the computation results is a large decimal, format to 4 decimal spots
   // also remove trailing 0s at the end of a decimal
-  if (/^\-?\d*\.\d{4,}$/.test(output)) {
+  if (/^\-?\d+\.\d{4,}$/.test(output)) {
     output = Number(output).toFixed(4);
-    output = output.replace(/\.(\d*)0+$/, '$1');
+    output = output.replace(/(\.\d+?)0*$/, '$1');
     calc.currentInput = output;
   }
   // replace (-) with -
