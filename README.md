@@ -10,7 +10,7 @@ This is a simple web based calculator written in vanilla Javascript. The calcula
 
 ## Getting Started
 
-Check out the [live demo](https://ryanjmack.github.io/js-calculator/)!
+Check out the [live demo](https://ryanjmack.github.io/calculator/)!
 
 ## Built With
 
